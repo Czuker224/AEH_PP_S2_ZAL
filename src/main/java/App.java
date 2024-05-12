@@ -1,7 +1,10 @@
+import notes.AddNote;
 import session.Session;
 import logowanie.LogIn;
 
 import java.util.Scanner;
+import java.util.Date;
+
 
 public class App {
 
@@ -41,8 +44,11 @@ public class App {
 
         System.out.println("Session: " + currentSession);
 
+        AddNote note = new AddNote(1,"New","Ważne-Pilne","testowa notatka sprawdzająca",new Date());
+        note.save();
+        note.printNote();
+
 
 
     }
-
 }
