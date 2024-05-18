@@ -21,6 +21,14 @@ public class User {
         this.haslo = haslo;
     }
 
+    public User (Integer id,String imie, String nazwisko, String email, String haslo) {
+        this.Id = id;
+        this.imie = imie;
+        this.nazwisko = nazwisko;
+        this.email = email;
+        this.haslo = haslo;
+    }
+
 
     /* setery i getery */
 
