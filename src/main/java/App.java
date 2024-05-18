@@ -1,5 +1,6 @@
 import session.Session;
 import logowanie.LogIn;
+import user.User;
 
 import java.util.Scanner;
 
@@ -7,10 +8,12 @@ public class App {
 
     public static void main( String[] args)
     {
-        String currentSession = "";
-        Integer currentUserId = null;
+        User currentUser = null;
+        Session currentSession = null;
 
-        if (currentUserId == null){
+        //logowanie
+
+        if (currentUser == null){
             Scanner sc = new Scanner(System.in);
             System.out.println("Podaj e-mail: ");
             String inpEmail = sc.nextLine();
@@ -18,32 +21,28 @@ public class App {
             System.out.println("Podaj hasło: ");
             String inpPas = sc.nextLine();
 
-
             LogIn logIn = new LogIn(inpEmail, inpPas);
-
-
-            //TO DO: Dodać opcję pobrania usera z bazy danych
-
-            //TO DO: przypisać pobranego usera do currentUserId
+            if (logIn.getId() != null) {
+                currentUser = new User(logIn.getId());
+            }
         }
 
-        if(currentSession == ""){
+        // Utworzenie sesji dla zalogowanych użytkowników
 
-            //TO DO: przypisać userId do sesji
+        if(currentSession == null && currentUser.getId() != null){
 
             //TO DO: dodać timeout dla sesji
-            //TO DO: dodać znacznik czy sesja jest aktywna
 
-            //TO DO: dodać sprawdzenie czy sesja już jest ustawiona dla użytkownika
-
-            Session session = new Session();
-            currentSession = session.getSesionId();
+            currentSession = new Session(currentUser.getId());
         }
 
-        System.out.println("Session: " + currentSession);
 
 
 
+        //Zakończenie sesji
+        if(currentSession != null){
+            currentSession.endSession();
+        }
     }
 
 }
