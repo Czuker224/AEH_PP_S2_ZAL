@@ -21,8 +21,9 @@ public class App {
             System.out.println("Podaj hasło: ");
             String inpPas = sc.nextLine();
 
+
             LogIn logIn = new LogIn(inpEmail, inpPas);
-            logIn.printLogin();
+
 
             //TO DO: Dodać opcję pobrania usera z bazy danych
 
