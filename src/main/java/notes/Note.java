@@ -17,13 +17,38 @@ public class Note {
 
     public static final List<String> TYPE_LIST = Arrays.asList("Ważne-Pilne", "Ważne-Niepilne", "Nieważne-Pilne", "Nieważne-Niepilne");
 
-    public Note(Integer responsibleUser, String state, String type, String description, Date plannedDedline) {
+    public Note(Integer responsibleUser, String state, String type, String description, Date plannedDeadline) {
         this.responsibleUser = responsibleUser;
         this.state = state;
         this.type = type;
         this.description = description;
         this.creationDate = new Date();;
-        this.plannedDedline = plannedDedline;
+        this.plannedDedline = plannedDeadline;
+    }
+
+    public Note(Integer id, Integer responsibleUser, String state, String type, String description, Date plannedDeadline) {
+        this.id = id;
+        this.responsibleUser = responsibleUser;
+        this.state = state;
+        this.type = type;
+        this.description = description;
+        this.creationDate = new Date();;
+        this.plannedDedline = plannedDeadline;
+    }
+
+    public Note(Integer id){
+        NoteRepository repo = new NoteRepository();
+        Note note = repo.getNote(id);
+
+        if(note != null){
+            this.id = note.getId();
+            this.responsibleUser = note.getResponsibleUser();
+            this.state = note.getState();
+            this.type = note.getType();
+            this.description = note.getDescription();
+            this.creationDate = note.getCreationDate();
+            this.plannedDedline = note.getPlannedDedline();
+        }
     }
 
 
