@@ -13,7 +13,6 @@ public class dbConnection {
         Connection connection = null;
         try {
             connection = DriverManager.getConnection("jdbc:sqlite:" + DATABASE_URL);
-            logger.info("Database connection established");
         } catch (SQLException e) {
             logger.severe("Database connection failed: " + e);
         }
