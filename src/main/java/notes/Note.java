@@ -17,6 +17,11 @@ public class Note {
 
     public static final List<String> TYPE_LIST = Arrays.asList("Ważne-Pilne", "Ważne-Niepilne", "Nieważne-Pilne", "Nieważne-Niepilne");
 
+    public Note(){
+        this.creationDate = new Date();
+        this.state = "New";
+    }
+
     public Note(Integer responsibleUser, String state, String type, String description, Date plannedDeadline) {
         this.responsibleUser = responsibleUser;
         this.state = state;
