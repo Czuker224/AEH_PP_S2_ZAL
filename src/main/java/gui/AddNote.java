@@ -19,6 +19,9 @@ public class AddNote implements ActionListener {
     private GridBagConstraints constraints;
     private JFrame frame;
     private JButton buttonAddNewNotte;
+    private JComboBox<String> cbCategory;
+//    private JTextArea txtAreaDescription;
+    private JTextField txtAreaDescription;
 
 
     private Note currentNote;
@@ -44,61 +47,64 @@ public class AddNote implements ActionListener {
     private void prepareWindow(){
         initializeFrame();
 
-        layout = new GridBagLayout();
-        constraints = new GridBagConstraints();
-        frame.setLayout(layout);
 
-        if(currentNote != null){
-            System.out.println("Wybrana notatka: " + currentNote.getId());
-        }
 
 
         // Create and set up label and combo box for "Kategoria"
-        JLabel lblCategory = new JLabel("Kategoria");
-        String[] categoryOptions = {"Option 1", "Option 2", "Option 3", "Option 4"};
-        JComboBox<String> cbCategory = new JComboBox<>(categoryOptions);
-        constraints.fill = GridBagConstraints.HORIZONTAL;
+        String[] categoryOptions = currentNote.TYPE_LIST;
         constraints.gridx = 0;
         constraints.gridy = 0;
-        frame.add(lblCategory, constraints);
-        constraints.gridx = 1;
-        frame.add(cbCategory, constraints);
+        setLabbel("Kategoria",constraints);
+            cbCategory = new JComboBox<>(categoryOptions);
+            if (currentNote.type != null) {
+                cbCategory.setSelectedItem(currentNote.type);
+            }
+            constraints.gridx = 1;
+            frame.add(cbCategory, constraints);
 
         // Create and set up label and text field for "Opis"
-        JLabel lblDescription = new JLabel("Opis");
-        JTextArea txtAreaDescription = new JTextArea(5, 20);
-        constraints.gridx = 0;
-        constraints.gridy = 1;
-        frame.add(lblDescription, constraints);
-        constraints.gridx = 1;
-        frame.add(txtAreaDescription, constraints);
-
-        // Create and set up label and date chooser for "Planowana data zakończenia"
-        JLabel lblPlanEndDate = new JLabel("Planowana data zakończenia");
-        JFormattedTextField txtFieldEndDate = new JFormattedTextField(DateFormat.getDateInstance());
         constraints.gridx = 0;
         constraints.gridy = 2;
-        frame.add(lblPlanEndDate, constraints);
+        setLabbel("Opis",constraints);
+//        txtAreaDescription = new JTextArea(5, 20);
+        txtAreaDescription = new JTextField(150);
         constraints.gridx = 1;
-        frame.add(txtFieldEndDate, constraints);
+            frame.add(txtAreaDescription, constraints);
+            if (currentNote.description != null) {
+                txtAreaDescription.setText(currentNote.description);
+            }
+
+        // Create and set up label and date chooser for "Planowana data zakończenia"
+        constraints.gridx = 0;
+        constraints.gridy = 2;
+        setLabbel("Planowana data wykonania",constraints);
+            JTextField txtFieldEndDate = new JFormattedTextField(DateFormat.getDateInstance());
+            constraints.gridx = 1;
+            frame.add(txtFieldEndDate, constraints);
+            if (currentNote.description != null) {
+                txtFieldEndDate.setText(currentNote.getPlannedDedline().toString());
+            }
 
         // Create and set up label and combo box for "Osoba odpowiedzialna"
-        JLabel lblResponsiblePerson = new JLabel("Osoba odpowiedzialna");
-        String[] responsiblePersonOptions = {"Osoba 1", "Osoba 2", "Osoba 3"};
-        JComboBox<String> cbResponsiblePerson = new JComboBox<>(responsiblePersonOptions);
-        constraints.gridx = 0;
-        constraints.gridy = 3;
-        frame.add(lblResponsiblePerson, constraints);
-        constraints.gridx = 1;
-        frame.add(cbResponsiblePerson, constraints);
+        String[] responsiblePersonOptions = {"Opcja 1","Opcja 2","Opcja 3"};
+            constraints.gridx = 0;
+            constraints.gridy = 3;
+            setLabbel("Osoba odpowiedzialna",constraints);
+            JComboBox<String> cbResponsiblePerson = new JComboBox<>(responsiblePersonOptions);
+            if (currentNote.description != null) {
+                cbResponsiblePerson.setSelectedItem(currentNote.getResponsibleUser());
+            }
+            constraints.gridx = 1;
+            frame.add(cbResponsiblePerson, constraints);
+
 
         // Create and set up the "Save" button
         buttonAddNewNotte = new JButton("Zapisz");
-        buttonAddNewNotte.addActionListener(e -> addNewNote());
-        constraints.gridx = 0;
-        constraints.gridy = 4;
-        constraints.gridwidth = 2;
-        frame.add(buttonAddNewNotte, constraints);
+            buttonAddNewNotte.addActionListener(e -> addNewNote());
+            constraints.gridx = 0;
+            constraints.gridy = 4;
+            constraints.gridwidth = 1;
+            frame.add(buttonAddNewNotte, constraints);
 
 
         frame.setVisible(true);
@@ -114,7 +120,6 @@ public class AddNote implements ActionListener {
 
     private void initializeFrame() {
         frame = new JFrame("Boskie notatki");
-//        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         frame.addWindowListener(new WindowAdapter(){
             public void windowClosing (WindowEvent e){
@@ -123,6 +128,11 @@ public class AddNote implements ActionListener {
         });
         frame.setLocationRelativeTo(null);
         frame.setSize(1400, 900);
+
+        layout = new GridBagLayout();
+        constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        frame.setLayout(layout);
     }
 
     private void onClose() {
@@ -131,9 +141,17 @@ public class AddNote implements ActionListener {
         this.session.endSession();
     }
 
+    private void setLabbel(String text, GridBagConstraints constr ){
+        JLabel lbl = new JLabel(text);
+        frame.add(lbl, constr);
+    }
 
 
     private void addNewNote() {
+        this.currentNote.setDescription(txtAreaDescription.getText());
+        this.currentNote.setType(cbCategory.getSelectedItem().toString());
 
+        this.currentNote.save();
+        this.frame.dispose();
     }
 }
