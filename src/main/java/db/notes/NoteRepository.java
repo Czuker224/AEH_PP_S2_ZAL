@@ -14,7 +14,7 @@ public class NoteRepository {
     private static final Logger logger = Logger.getLogger(SessionRepository.class.getName());
 
     private static final String INSERT_NOTE_SQL = "INSERT INTO NOTES (inputDate, responsibleUser, state, type, description, planedDeadline) VALUES (?, ?, ?, ?, ?, ?)";
-    private static final String UPDATE_NOTE_SQL = "UPDATE NOTES SET responsibleUser = ?, state = ?, type = ?, description = ?, planedDedline = ? WHERE id = ?";
+    private static final String UPDATE_NOTE_SQL = "UPDATE NOTES SET responsibleUser = ?, state = ?, type = ?, description = ?, planedDeadline = ? WHERE id = ?";
     private static final String DELETE_NOTE_SQL = "DELETE NOTES  WHERE id = ?";
     private static final String SELECT_NOTE_SQL = "SELECT * FROM NOTES WHERE id = ?";
 
@@ -108,7 +108,8 @@ public class NoteRepository {
         return notes;
     }
 
-    public void updateNote(Integer id, Date inputDate, Integer responsibleUser, String state, String type, String description, Date planedDeadline) {
+    public void updateNote(Integer id, java.util.Date inputDate, Integer responsibleUser, String state, String type, String description, java.util.Date planedDeadline) {
+
         try (Connection connection = dbConnection.createDatabaseConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_NOTE_SQL)) {
 
@@ -116,7 +117,11 @@ public class NoteRepository {
             preparedStatement.setString(2, state);
             preparedStatement.setString(3, type);
             preparedStatement.setString(4, description);
-            preparedStatement.setDate(5, planedDeadline);
+            if (planedDeadline instanceof java.sql.Date) {
+                preparedStatement.setDate(5, (java.sql.Date) planedDeadline);
+            } else {
+                preparedStatement.setDate(5, new java.sql.Date(planedDeadline.getTime()));
+            }
             preparedStatement.setInt(6, id);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {

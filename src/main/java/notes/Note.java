@@ -15,7 +15,8 @@ public class Note {
     public java.util.Date creationDate;
     public java.util.Date plannedDedline;
 
-    public static final List<String> TYPE_LIST = Arrays.asList("Ważne-Pilne", "Ważne-Niepilne", "Nieważne-Pilne", "Nieważne-Niepilne");
+//    public final List<String> TYPE_LIST = Arrays.asList("Ważne-Pilne", "Ważne-Niepilne", "Nieważne-Pilne", "Nieważne-Niepilne");
+    public final String[] TYPE_LIST = {"Ważne-Pilne", "Ważne-Niepilne", "Nieważne-Pilne", "Nieważne-Niepilne"};
 
     public Note(){
         this.creationDate = new Date();
@@ -116,10 +117,16 @@ public class Note {
 
     public void save(){
         NoteRepository req = new NoteRepository();
-        java.sql.Date sqlCreationDate = new java.sql.Date(this.getCreationDate().getTime());
-        java.sql.Date sqlPlannedDedline = new java.sql.Date(this.getPlannedDedline().getTime());
-        Integer id = req.addNote(sqlCreationDate, this.getResponsibleUser(), this.getState(), this.getType(), this.getDescription(), sqlPlannedDedline);
-        this.setId(id);
+
+        if(this.id == null){
+            java.sql.Date sqlCreationDate = new java.sql.Date(this.getCreationDate().getTime());
+            java.sql.Date sqlPlannedDedline = new java.sql.Date(this.getPlannedDedline().getTime());
+
+            Integer id = req.addNote(sqlCreationDate, this.getResponsibleUser(), this.getState(), this.getType(), this.getDescription(), sqlPlannedDedline);
+            this.setId(id);
+        }
+
+        req.updateNote(getId(),getCreationDate(),getResponsibleUser(),getState(),getType(),getDescription(),getPlannedDedline());
     }
 
 
