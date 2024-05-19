@@ -98,9 +98,14 @@ public class LogIn implements ActionListener {
         }
 
         if(session == null){
+
+            errorMessage.setText("Invalid email or password");
+            errorMessage.setVisible(true);
+
             return;
         }
 
+        errorMessage.setText("");
         frame.dispose();
 
         session.printSession();
