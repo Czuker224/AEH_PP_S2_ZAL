@@ -5,15 +5,20 @@ import db.session.SessionRepository;
 import notes.Note;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 public class NoteRepository {
 
     private static final Logger logger = Logger.getLogger(SessionRepository.class.getName());
+
     private static final String INSERT_NOTE_SQL = "INSERT INTO NOTES (inputDate, responsibleUser, state, type, description, planedDeadline) VALUES (?, ?, ?, ?, ?, ?)";
     private static final String UPDATE_NOTE_SQL = "UPDATE NOTES SET responsibleUser = ?, state = ?, type = ?, description = ?, planedDedline = ? WHERE id = ?";
     private static final String DELETE_NOTE_SQL = "DELETE NOTES  WHERE id = ?";
     private static final String SELECT_NOTE_SQL = "SELECT * FROM NOTES WHERE id = ?";
+
+    private static final String SELECT_GET_ALL_USER_NOTES_SQL = "SELECT * FROM NOTES WHERE responsibleUser = ?";
 
     public int addNote(Date inputDate, Integer responsibleUser, String state, String type, String description, Date planedDeadline) {
         ResultSet generatedKeys = null;
@@ -71,6 +76,36 @@ public class NoteRepository {
             logger.severe("Database operation failed: " + e);
         }
         return note;
+    }
+
+    public List<notes.Note> getUserNotes(Integer userId) {
+        if (userId == null) {
+            throw new IllegalArgumentException("userId cannot be null");
+        }
+
+        List<Note> notes = new ArrayList<>();
+        try (Connection connection = dbConnection.createDatabaseConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_GET_ALL_USER_NOTES_SQL)) {
+
+            preparedStatement.setInt(1, userId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                Integer id = resultSet.getInt("id");
+                String state = resultSet.getString("state");
+                String type = resultSet.getString("type");
+                String description = resultSet.getString("description");
+                Date plannedDeadline = resultSet.getDate("planedDeadline");
+
+                if(id != null){
+                    notes.add(new Note(id,userId,state,type,description,plannedDeadline));
+                }
+
+            }
+        } catch (SQLException e) {
+            logger.severe("Database operation failed: " + e);
+        }
+        return notes;
     }
 
     public void updateNote(Integer id, Date inputDate, Integer responsibleUser, String state, String type, String description, Date planedDeadline) {
