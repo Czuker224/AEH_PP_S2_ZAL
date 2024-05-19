@@ -1,6 +1,5 @@
 package gui;
 
-import db.notes.NoteRepository;
 import notes.Note;
 import session.Session;
 
@@ -8,16 +7,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.text.DateFormat;
 
-public class AddNote implements ActionListener {
+public class AddNote extends AppWindow implements ActionListener {
 
-    private Session session;
-    private GridBagLayout layout;
-    private GridBagConstraints constraints;
-    private JFrame frame;
     private JButton buttonAddNewNotte;
     private JComboBox<String> cbCategory;
 //    private JTextArea txtAreaDescription;
@@ -30,25 +23,28 @@ public class AddNote implements ActionListener {
 
     }
 
-    public AddNote(Session session){
+    public AddNote(Session session,AppWindow lastWindow){
+        super();
+
         this.currentNote = new Note();
 
         setSession(session);
         prepareWindow();
     }
 
-    public AddNote(Session session, Note note){
+    public AddNote(Session session, Note note, AppWindow lastWindow){
+        super();
+
         this.currentNote = note;
+        this.lastWindow = lastWindow;
 
         setSession(session);
         prepareWindow();
+
     }
 
     private void prepareWindow(){
         initializeFrame();
-
-
-
 
         // Create and set up label and combo box for "Kategoria"
         String[] categoryOptions = currentNote.TYPE_LIST;
@@ -111,36 +107,6 @@ public class AddNote implements ActionListener {
 
     }
 
-    private void setSession(Session session) {
-        if(session == null){
-            System.out.println("brak sesji");
-        }
-        this.session = session;
-    }
-
-    private void initializeFrame() {
-        frame = new JFrame("Boskie notatki");
-        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        frame.addWindowListener(new WindowAdapter(){
-            public void windowClosing (WindowEvent e){
-                onClose();
-            }
-        });
-        frame.setLocationRelativeTo(null);
-        frame.setSize(1400, 900);
-
-        layout = new GridBagLayout();
-        constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        frame.setLayout(layout);
-    }
-
-    private void onClose() {
-
-        this.frame.dispose();
-        this.session.endSession();
-    }
-
     private void setLabbel(String text, GridBagConstraints constr ){
         JLabel lbl = new JLabel(text);
         frame.add(lbl, constr);
@@ -153,5 +119,7 @@ public class AddNote implements ActionListener {
 
         this.currentNote.save();
         this.frame.dispose();
+        this.lastWindow.frame.setVisible(true);
+
     }
 }

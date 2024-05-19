@@ -4,22 +4,19 @@ import db.notes.NoteRepository;
 import notes.Note;
 import notes.Notes;
 import session.Session;
-import user.User;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
 
-public class Dashboard implements ActionListener {
+public class Dashboard extends AppWindow implements ActionListener {
 
-    private Session session;
-    private GridBagLayout layout;
-    private GridBagConstraints constraints;
-    private JFrame frame;
     private JPanel panelNotes;
     private JButton buttonAddNewNotte;
 
     public Dashboard(Session session){
+        super();
+
         if(session == null){
             System.out.println("brak sesji");
         }
@@ -41,21 +38,6 @@ public class Dashboard implements ActionListener {
 
         frame.setVisible(true);
 
-    }
-
-    private void initializeFrame() {
-        frame = new JFrame("Boskie notatki");
-//        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        frame.addWindowListener(new WindowAdapter(){
-            public void windowClosing (WindowEvent e){
-                onClose();
-            }
-        });
-        frame.setLocationRelativeTo(null);
-        frame.setSize(1400, 900);
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        frame.setLayout(layout);
     }
 
     private JButton addNoteButton(JFrame parent){
@@ -117,21 +99,13 @@ public class Dashboard implements ActionListener {
         frame.add(scrollPane, constraints);
     }
 
-
-
-
-    private void onClose() {
-
-        this.frame.dispose();
-        this.session.endSession();
-    }
-
-    // Method to handle the button click (addNewNote)
     private void addNewNote () {
-        new AddNote(session);
+        this.frame.dispose();
+        new AddNote(session,this);
     }
 
     private void editNote(Note note){
-        new AddNote(session,note);
+        this.frame.dispose();
+        new AddNote(session,note,this);
     }
 }
