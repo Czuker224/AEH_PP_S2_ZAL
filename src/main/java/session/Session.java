@@ -6,41 +6,70 @@ import java.util.Random;
 import db.session.SessionRepository;
 
 public class Session {
-    private String sessionId;
-    private String sessionToken;
+    private Integer id;
+    private String token;
+    private Integer userId;
+
 
     public Session() {
-        this.sessionId = generateToken();
+        this.token = generateToken();
+    }
+
+    public Session(Integer id,Integer userId, String token) {
+        this.id = id;
+        this.token = token;
+        this.userId = userId;
     }
 
     public Session(Integer userId) {
         //sprawdzenie czy istnieje aktywna sesja
-        String activeSession = getActiveSession(userId);
+        Session activeSession = getActiveSession(userId);
         if (activeSession != null) {
-            this.sessionId = activeSession;
+            this.id = activeSession.getId();
+            this.token = activeSession.getToken();
+            this.userId = activeSession.getUserId();
 
             System.out.println("używam tokenu aktywnej sesji z bazy danych (" + activeSession + ")");
         } else {
-            this.sessionId = generateToken();
+            this.token = generateToken();
             this.insertNewSession(userId);
 
-            System.out.println("Session: " + this.sessionId);
+            Session updateActiveSession = getActiveSession(userId);
+            if(updateActiveSession != null){
+                this.id = updateActiveSession.getId();
+                this.token = updateActiveSession.getToken();
+                this.userId = updateActiveSession.getUserId();
+            }
+
+            System.out.println("Session: " + token);
         }
     }
 
-    public String getSesionId() {
-        return this.sessionId;
+    public Integer getId() {
+        return id;
     }
 
+    public String getToken() {return token;}
+
+    public Integer getUserId() {return userId;}
+
     public String checkIsSessionActive(Integer userId){
-        String sessionToken = getActiveSession(userId);
-        return sessionToken;
+        Session sessionToken = getActiveSession(userId);
+        return sessionToken.getToken();
     }
 
     public void endSession(){
         SessionRepository sr = new SessionRepository();
-        sr.endSession(this.sessionId);
-        System.out.println("Zakonczono sesję: " + this.sessionId);
+        sr.endSession(token);
+        System.out.println("Zakonczono sesję: " + token);
+    }
+
+    public void printSession() {
+        System.out.println("Dane sessji:");
+        System.out.println("ID: " + id);
+        System.out.println("Token: " + token);
+        System.out.println("User ID: " + userId);
+        System.out.println("-------");
     }
 
 
@@ -61,16 +90,16 @@ public class Session {
 
     private void insertNewSession(){
         SessionRepository sr = new SessionRepository();
-        sr.addSession(this.sessionId);
+        sr.addSession(token);
     }
 
     private void insertNewSession(Integer userId){
         SessionRepository sr = new SessionRepository();
-        sr.addSession(this.sessionId,userId);
+        sr.addSession(token,userId);
     }
 
-    private String getActiveSession(Integer userId){
+    private Session getActiveSession(Integer userId){
         SessionRepository sr = new SessionRepository();
-        return sr.getActiveSessionToken(userId);
+        return sr.getActiveSession(userId);
     }
 }

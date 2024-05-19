@@ -102,6 +102,8 @@ public class LogIn implements ActionListener {
         }
 
         frame.dispose();
+
+        session.printSession();
         new Dashboard(session);
     }
 

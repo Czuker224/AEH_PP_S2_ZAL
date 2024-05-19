@@ -1,6 +1,7 @@
 package db.session;
 
 import db.dbConnection;
+import session.Session;
 import user.User;
 
 import java.sql.*;
@@ -15,6 +16,7 @@ public class SessionRepository {
     private static final String UPDATE_SESSION_USER_SQL = "UPDATE SESSION SET UserId = ? WHERE UserId = ?";
     private static final String UPDATE_SESSION_END_SQL = "UPDATE SESSION SET endDate = ?, isActive = 0 WHERE token = ?";
     private static final String SELECT_SESSION_TOKEN_SQL = "SELECT token FROM SESSION WHERE isActive = 1 AND UserId = ? ORDER BY inputDate DESC LIMIT 1";
+    private static final String SELECT_SESSION_SQL = "SELECT * FROM SESSION WHERE isActive = 1 AND UserId = ? ORDER BY inputDate DESC LIMIT 1";
 
     public void addSession(String token) {
         try (Connection connection = dbConnection.createDatabaseConnection();
@@ -54,6 +56,17 @@ public class SessionRepository {
         return null;
     }
 
+    public Session getActiveSession(int userId) {
+        try (Connection connection = dbConnection.createDatabaseConnection();
+             PreparedStatement preparedStatement = prepareGetSessionQuery(connection, userId);
+             ResultSet resultSet = preparedStatement.executeQuery()) {
+            return handleGetSesionResault(resultSet);
+        } catch (SQLException e) {
+            logger.severe("Database operation failed: " + e);
+        }
+        return null;
+    }
+
     public void updateSessionUser(String sessionId, int userId) {
         try (Connection connection = dbConnection.createDatabaseConnection();
              PreparedStatement preparedStatement = prepareUpdateSessionUserQuery(connection, sessionId, userId)) {
@@ -79,12 +92,31 @@ public class SessionRepository {
         return preparedStatement;
     }
 
+    private PreparedStatement prepareGetSessionQuery(Connection connection, int userId) throws SQLException {
+        PreparedStatement preparedStatement = connection.prepareStatement(SELECT_SESSION_SQL);
+        preparedStatement.setInt(1, userId);
+        return preparedStatement;
+    }
+
     private String handleGetTokenResault(ResultSet resultSet) throws SQLException {
         String sessionToken = null;
         if (resultSet.next()) {
             sessionToken = resultSet.getString("token");
         }
         return sessionToken;
+    }
+
+    private Session handleGetSesionResault(ResultSet resultSet) throws SQLException {
+        Session session = null;
+        if (resultSet.next()) {
+            Integer id = resultSet.getInt("id");
+            String token = resultSet.getString("token");
+            Date inputDate = resultSet.getDate("inputDate");
+            Integer UserId = resultSet.getInt("UserId");
+
+            session = new Session(id,UserId,token);
+        }
+        return session;
     }
 
     private PreparedStatement prepareUpdateSessionUserQuery(Connection connection, String sessionId, int userId) throws SQLException {
