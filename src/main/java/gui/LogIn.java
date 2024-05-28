@@ -7,8 +7,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class LogIn implements ActionListener {
+    private JLabel createAccountLabel;
     private JFrame frame;
     private JTextField emailField;
     private JPasswordField passwordField;
@@ -65,6 +68,17 @@ public class LogIn implements ActionListener {
 
         loginButton.addActionListener(this);
 
+        constraints.gridy++; // y = 6
+        createAccountLabel = new JLabel("nowe konto");
+        createAccountLabel.setForeground(Color.BLACK);
+        createAccountLabel.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                createAccount();
+            }
+        });
+
+        frame.add(createAccountLabel, constraints);
+
         frame.setVisible(true);
     }
 
@@ -116,4 +130,9 @@ public class LogIn implements ActionListener {
 
     }
 
+
+    private void createAccount(){
+
+        JOptionPane.showMessageDialog(frame, "Tu ma być mechanizm dodawania nowego konta");
+    }
 }
