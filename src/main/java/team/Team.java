@@ -1,5 +1,7 @@
 package team;
 
+import db.notes.NoteRepository;
+import db.team.TeamRepository;
 import user.User;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,15 +17,25 @@ public class Team {
         this.name = name;
     }
 
-    public Team(String name, Integer id){
-        this.name = name;
+    public Team(Integer id){
         this.Id = id;
+    }
+
+    public Team(Integer id,String name){
+        this.Id = id;
+        this.name = name;
     }
 
     public Team(String name, User user){
         this.name = name;
         this.users = new ArrayList<>();
         users.add(user);
+    }
+
+    public Team(Integer id, String name, List<User> users){
+        this.Id = id;
+        this.name = name;
+        this.users = users;
     }
 
 
@@ -55,11 +67,11 @@ public class Team {
 
 
     /* public */
-    public List getMyTeams (User user){
-
-        List<Team> teams = new ArrayList<>();
-        return teams;
+    public static List<Team> getMyTeams(User user){
+        TeamRepository tr = new TeamRepository();
+        return tr.getTeams(user.getId());
     }
+
 
 
     /* private */

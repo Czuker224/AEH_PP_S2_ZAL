@@ -2,7 +2,6 @@ package db.team;
 
 import db.dbConnection;
 import db.session.SessionRepository;
-import notes.Note;
 import team.Team;
 import user.User;
 
@@ -14,6 +13,8 @@ import java.util.logging.Logger;
 public class TeamRepository {
 
     private static final Logger logger = Logger.getLogger(SessionRepository.class.getName());
+    private static final String SELECT_TEAM_BYID_SQL = "SELECT * FROM TEAM WHERE ID = ?";
+    private static final String SELECT_TEAM_BYNAME_SQL = "SELECT * FROM TEAM WHERE NAME = ?";
     private static final String INSERT_TEAM_SQL = "INSERT INTO TEAM (Name) VALUES (?)";
     private static final String DELETE_TEAM_SQL = "DELETE FROM TEAM WHERE ID = ?";
     private static final String SELECT_TEAMS_BY_USER_SQL = "SELECT T.ID, T.NAME FROM TEAM T, MEMBERS M WHERE T.ID = M.team AND userId = ?";
@@ -55,6 +56,35 @@ public class TeamRepository {
         }
     }
 
+    public Team getTeamById(Integer id) throws SQLException {
+
+        if (id == null) {
+            throw new IllegalArgumentException("id cannot be null");
+        }
+
+
+        Team team = null;
+        try (Connection connection = dbConnection.createDatabaseConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_TEAM_BYID_SQL)) {
+
+            preparedStatement.setInt(1, id);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                Integer teamId = resultSet.getInt("id");
+                String teamName = resultSet.getString("name");
+
+                team  = new Team(teamId, teamName);
+            }
+        }
+
+        assert team != null;
+        team.setUsers(getUsersForTeam(team));
+
+
+        return team;
+    }
+
     public List<Team> getTeams(int userId) {
         List<Team> teams = new ArrayList<>();
         try (Connection connection = dbConnection.createDatabaseConnection();
@@ -64,9 +94,9 @@ public class TeamRepository {
             ResultSet resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
-                int teamId = resultSet.getInt("team_id");
-                String teamName = resultSet.getString("team_name");
-                Team team = new Team(teamName, teamId);
+                int teamId = resultSet.getInt("id");
+                String teamName = resultSet.getString("name");
+                Team team = new Team(teamId,teamName);
                 teams.add(team);
             }
         } catch (SQLException e) {

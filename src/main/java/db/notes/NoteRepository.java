@@ -13,14 +13,14 @@ public class NoteRepository {
 
     private static final Logger logger = Logger.getLogger(SessionRepository.class.getName());
 
-    private static final String INSERT_NOTE_SQL = "INSERT INTO NOTES (inputDate, responsibleUser, state, type, description, planedDeadline) VALUES (?, ?, ?, ?, ?, ?)";
-    private static final String UPDATE_NOTE_SQL = "UPDATE NOTES SET responsibleUser = ?, state = ?, type = ?, description = ?, planedDeadline = ? WHERE id = ?";
+    private static final String INSERT_NOTE_SQL = "INSERT INTO NOTES (inputDate, responsibleUser, state, type, description, planedDeadline,team) VALUES (?, ?, ?, ?, ?, ?,?)";
+    private static final String UPDATE_NOTE_SQL = "UPDATE NOTES SET responsibleUser = ?, state = ?, type = ?, description = ?, planedDeadline = ?,team = ? WHERE id = ?";
     private static final String DELETE_NOTE_SQL = "DELETE NOTES  WHERE id = ?";
     private static final String SELECT_NOTE_SQL = "SELECT * FROM NOTES WHERE id = ?";
 
     private static final String SELECT_GET_ALL_USER_NOTES_SQL = "SELECT * FROM NOTES WHERE responsibleUser = ?";
 
-    public int addNote(Date inputDate, Integer responsibleUser, String state, String type, String description, Date planedDeadline) {
+    public int addNote(Date inputDate, Integer responsibleUser, String state, String type, String description, Date planedDeadline, Integer team) {
         ResultSet generatedKeys = null;
         int generatedKey = 0;
         try (Connection connection = dbConnection.createDatabaseConnection();
@@ -32,6 +32,7 @@ public class NoteRepository {
             preparedStatement.setString(4, type);
             preparedStatement.setString(5, description);
             preparedStatement.setDate(6, planedDeadline);
+            preparedStatement.setInt(7, team);
             preparedStatement.executeUpdate();
 
             generatedKeys = preparedStatement.getGeneratedKeys();
@@ -65,12 +66,13 @@ public class NoteRepository {
 
             if (resultSet.next()) {
                 Integer responsibleUser = resultSet.getInt("responsibleUser");
+                Integer team = resultSet.getInt("team");
                 String state = resultSet.getString("state");
                 String type = resultSet.getString("type");
                 String description = resultSet.getString("description");
                 Date plannedDeadline = resultSet.getDate("planedDeadline");
 
-                note = new Note(id,responsibleUser,state,type,description,plannedDeadline);
+                note = new Note(id,responsibleUser,state,type,description,plannedDeadline,team);
             }
         } catch (SQLException e) {
             logger.severe("Database operation failed: " + e);
@@ -92,13 +94,14 @@ public class NoteRepository {
 
             while (resultSet.next()) {
                 Integer id = resultSet.getInt("id");
+                Integer team = resultSet.getInt("team");
                 String state = resultSet.getString("state");
                 String type = resultSet.getString("type");
                 String description = resultSet.getString("description");
                 Date plannedDeadline = resultSet.getDate("planedDeadline");
 
                 if(id != null){
-                    notes.add(new Note(id,userId,state,type,description,plannedDeadline));
+                    notes.add(new Note(id,userId,state,type,description,plannedDeadline,team));
                 }
 
             }
@@ -108,12 +111,13 @@ public class NoteRepository {
         return notes;
     }
 
-    public void updateNote(Integer id, java.util.Date inputDate, Integer responsibleUser, String state, String type, String description, java.util.Date planedDeadline) {
+    public void updateNote(Integer id, java.util.Date inputDate, Integer responsibleUser, String state, String type, String description, java.util.Date planedDeadline, Integer team) {
 
         try (Connection connection = dbConnection.createDatabaseConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_NOTE_SQL)) {
 
             preparedStatement.setInt(1, responsibleUser);
+            preparedStatement.setInt(6, team);
             preparedStatement.setString(2, state);
             preparedStatement.setString(3, type);
             preparedStatement.setString(4, description);
@@ -122,7 +126,7 @@ public class NoteRepository {
             } else {
                 preparedStatement.setDate(5, new java.sql.Date(planedDeadline.getTime()));
             }
-            preparedStatement.setInt(6, id);
+            preparedStatement.setInt(7, id);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             logger.severe("Database operation failed: " + e);

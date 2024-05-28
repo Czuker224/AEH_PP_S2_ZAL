@@ -8,6 +8,7 @@ import db.notes.NoteRepository;
 public class Note {
 
     public Integer id;
+    public Integer team;
     public Integer responsibleUser;
     public String state;
     public String type;
@@ -32,7 +33,7 @@ public class Note {
         this.plannedDedline = plannedDeadline;
     }
 
-    public Note(Integer id, Integer responsibleUser, String state, String type, String description, Date plannedDeadline) {
+    public Note(Integer id, Integer responsibleUser, String state, String type, String description, Date plannedDeadline,Integer team) {
         this.id = id;
         this.responsibleUser = responsibleUser;
         this.state = state;
@@ -40,6 +41,7 @@ public class Note {
         this.description = description;
         this.creationDate = new Date();;
         this.plannedDedline = plannedDeadline;
+        this.team = team;
     }
 
     public Note(Integer id){
@@ -114,19 +116,23 @@ public class Note {
         this.plannedDedline = plannedDedline;
     }
 
+    public Integer getTeam() { return team;}
+
+    public void setTeam(Integer team) {this.team = team;}
+
 
     public void save(){
         NoteRepository req = new NoteRepository();
 
         if(this.id == null){
-            java.sql.Date sqlCreationDate = new java.sql.Date(this.getCreationDate().getTime());
-            java.sql.Date sqlPlannedDedline = new java.sql.Date(this.getPlannedDedline().getTime());
+            java.sql.Date sqlCreationDate = new java.sql.Date(getCreationDate().getTime());
+            java.sql.Date sqlPlannedDedline = new java.sql.Date(getPlannedDedline().getTime());
 
-            Integer id = req.addNote(sqlCreationDate, this.getResponsibleUser(), this.getState(), this.getType(), this.getDescription(), sqlPlannedDedline);
-            this.setId(id);
+            Integer id = req.addNote(sqlCreationDate, getResponsibleUser(), getState(), getType(), getDescription(), sqlPlannedDedline,getTeam());
+            setId(id);
         }
 
-        req.updateNote(getId(),getCreationDate(),getResponsibleUser(),getState(),getType(),getDescription(),getPlannedDedline());
+        req.updateNote(getId(),getCreationDate(),getResponsibleUser(),getState(),getType(),getDescription(),getPlannedDedline(),getTeam());
     }
 
 
