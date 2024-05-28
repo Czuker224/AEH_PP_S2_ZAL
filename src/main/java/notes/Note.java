@@ -16,6 +16,9 @@ public class Note {
     public java.util.Date creationDate;
     public java.util.Date plannedDedline;
 
+    private String startingState;
+    private Integer startingResponsibleUser;
+
 //    public final List<String> TYPE_LIST = Arrays.asList("Ważne-Pilne", "Ważne-Niepilne", "Nieważne-Pilne", "Nieważne-Niepilne");
     public final String[] TYPE_LIST = {"Ważne-Pilne", "Ważne-Niepilne", "Nieważne-Pilne", "Nieważne-Niepilne"};
 
@@ -31,6 +34,14 @@ public class Note {
         this.description = description;
         this.creationDate = new Date();;
         this.plannedDedline = plannedDeadline;
+
+        if(startingState == null){
+            startingState = state;
+        }
+
+        if (startingResponsibleUser == null){
+            startingResponsibleUser = responsibleUser;
+        }
     }
 
     public Note(Integer id, Integer responsibleUser, String state, String type, String description, Date plannedDeadline,Integer team) {
@@ -42,6 +53,13 @@ public class Note {
         this.creationDate = new Date();;
         this.plannedDedline = plannedDeadline;
         this.team = team;
+
+        if(startingState == null){
+            startingState = state;
+        }
+        if (startingResponsibleUser == null){
+            startingResponsibleUser = responsibleUser;
+        }
     }
 
     public Note(Integer id){
@@ -56,6 +74,13 @@ public class Note {
             this.description = note.getDescription();
             this.creationDate = note.getCreationDate();
             this.plannedDedline = note.getPlannedDedline();
+
+            if(startingState == null){
+                startingState = state;
+            }
+            if (startingResponsibleUser == null){
+                startingResponsibleUser = responsibleUser;
+            }
         }
     }
 

@@ -3,10 +3,13 @@ package db.notes;
 import db.dbConnection;
 import db.session.SessionRepository;
 import notes.Note;
+import session.Session;
+import user.User;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Logger;
 
 public class NoteRepository {
@@ -19,6 +22,12 @@ public class NoteRepository {
     private static final String SELECT_NOTE_SQL = "SELECT * FROM NOTES WHERE id = ?";
 
     private static final String SELECT_GET_ALL_USER_NOTES_SQL = "SELECT * FROM NOTES WHERE responsibleUser = ?";
+
+    private static final String SELECT_NOTE_HISTORY_SQL = "SELECT * FROM NOTES_HISTORY WHERE id = ?";
+    private static final String SELECT_NOTE_HISTORY_FOR_NOTEID_SQL = "SELECT * FROM NOTES_HISTORY WHERE noteId = ?";
+    private static final String SELECT_NOTE_HISTORY_FOR_NOTEID_ONLYOPEN_SQL = "SELECT * FROM NOTES_HISTORY WHERE dateEnd is null and noteId = ? and userId = ?";
+    private static final String INSERT_NOTE_HISTORY_SQL = "INSERT INTO NOTES_HISTORY (noteId, userId, dateStart) VALUES (?, ?, ?)";
+    private static final String UPDATE_NOTE_HISTORY_SQL = "UPDATE NOTES_HISTORY SET dateEnd = ? WHERE noteId = ?";
 
     public int addNote(Date inputDate, Integer responsibleUser, String state, String type, String description, Date planedDeadline, Integer team) {
         ResultSet generatedKeys = null;
@@ -39,6 +48,11 @@ public class NoteRepository {
             if (generatedKeys.next()) {
                 generatedKey = generatedKeys.getInt(1);
             }
+
+            if (generatedKey != 0) {
+                addNoteHistory(generatedKey,responsibleUser);
+            }
+
         } catch (SQLException e) {
             logger.severe("Database operation failed: " + e);
         } finally {
@@ -112,6 +126,7 @@ public class NoteRepository {
     }
 
     public void updateNote(Integer id, java.util.Date inputDate, Integer responsibleUser, String state, String type, String description, java.util.Date planedDeadline, Integer team) {
+        Note currNote = new Note(id);
 
         try (Connection connection = dbConnection.createDatabaseConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_NOTE_SQL)) {
@@ -128,6 +143,13 @@ public class NoteRepository {
             }
             preparedStatement.setInt(7, id);
             preparedStatement.executeUpdate();
+
+            if(Objects.equals(state, "Zakończony") || !Objects.equals(currNote.getResponsibleUser(), responsibleUser)){
+                Integer noteHistoryId = getNoteHistoryId(id);
+
+                updateNoteHistory(noteHistoryId);
+            }
+
         } catch (SQLException e) {
             logger.severe("Database operation failed: " + e);
         }
@@ -139,6 +161,51 @@ public class NoteRepository {
 
             preparedStatement.setInt(1, id);
             preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            logger.severe("Database operation failed: " + e);
+        }
+    }
+
+    private void addNoteHistory(Integer noteId, Integer userId){
+        try (Connection connection = dbConnection.createDatabaseConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(INSERT_NOTE_HISTORY_SQL)) {
+
+            preparedStatement.setInt(1, noteId);
+            preparedStatement.setInt(2, userId);
+            preparedStatement.setDate(3, new Date(System.currentTimeMillis()));
+            preparedStatement.executeUpdate();
+
+
+        } catch (SQLException e) {
+            logger.severe("Database operation failed: " + e);
+        }
+    }
+
+    private Integer getNoteHistoryId(Integer noteId){
+        try (Connection connection = dbConnection.createDatabaseConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_NOTE_HISTORY_FOR_NOTEID_SQL)) {
+
+            preparedStatement.setInt(1, noteId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                return resultSet.getInt("id");
+            }
+        } catch (SQLException e) {
+            logger.severe("Database operation failed: " + e);
+        }
+        return null;
+    }
+
+    private void updateNoteHistory(Integer noteId){
+        try (Connection connection = dbConnection.createDatabaseConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_NOTE_HISTORY_SQL)) {
+
+            preparedStatement.setInt(2, noteId);
+            preparedStatement.setDate(1, new Date(System.currentTimeMillis()));
+            preparedStatement.executeUpdate();
+
+
         } catch (SQLException e) {
             logger.severe("Database operation failed: " + e);
         }

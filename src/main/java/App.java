@@ -14,6 +14,7 @@ public class App {
 
             new gui.LogIn(currentUser, currentSession);
 
+
         }
 
     }

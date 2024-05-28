@@ -12,6 +12,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 public class AddNote extends AppWindow implements ActionListener {
@@ -23,9 +24,10 @@ public class AddNote extends AppWindow implements ActionListener {
 //    private JTextArea txtAreaDescription;
     private JTextField txtAreaDescription;
 
-
+    private User currentUser;
     private Note currentNote;
     private Team selectedTeam;
+    private List<Team> MyTeams;
 
     public void actionPerformed(ActionEvent e) {
 
@@ -52,10 +54,14 @@ public class AddNote extends AppWindow implements ActionListener {
     }
 
     private void prepareWindow(){
+        currentUser = new User(session.getUserId());
+
         initializeFrame();
 
         // Create and set up label and combo box for "Zespół"
-        List MyTeams = Team.getMyTeams(new User(session.getUserId()));
+        MyTeams = Team.getMyTeams(new User(session.getUserId()));
+
+//        List<Team> MyTeams = currentUser.getTeamList();
         String[] teamOptions = new String[MyTeams.size()];
         for (int i = 0; i < MyTeams.size(); i++) {
             teamOptions[i] = ((Team) MyTeams.get(i)).getName();
@@ -64,6 +70,7 @@ public class AddNote extends AppWindow implements ActionListener {
         constraints.gridy = 0;
         setLabbel("Zespół", constraints);
         cbTeam = new JComboBox<>(teamOptions);
+        cbTeam.setPreferredSize(new Dimension(200, 50));
         if (currentNote.team != null) {
             cbTeam.setSelectedItem(currentNote.team);
         }
@@ -92,7 +99,7 @@ public class AddNote extends AppWindow implements ActionListener {
             if (currentNote.type != null) {
                 cbCategory.setSelectedItem(currentNote.type);
             }
-            constraints.gridx = 2;
+            constraints.gridx = 1;
             frame.add(cbCategory, constraints);
 
         // Create and set up label and text field for "Opis"
@@ -100,8 +107,9 @@ public class AddNote extends AppWindow implements ActionListener {
         constraints.gridy = 2;
         setLabbel("Opis",constraints);
 //        txtAreaDescription = new JTextArea(5, 20);
-        txtAreaDescription = new JTextField(150);
-        constraints.gridx = 3;
+        txtAreaDescription = new JTextField(300);
+        txtAreaDescription.setPreferredSize(new Dimension(1000, 50));
+        constraints.gridx = 1;
             frame.add(txtAreaDescription, constraints);
             if (currentNote.description != null) {
                 txtAreaDescription.setText(currentNote.description);
@@ -112,15 +120,15 @@ public class AddNote extends AppWindow implements ActionListener {
         constraints.gridy = 4;
         setLabbel("Planowana data wykonania",constraints);
             JTextField txtFieldEndDate = new JFormattedTextField(DateFormat.getDateInstance());
-            constraints.gridx = 4;
+            constraints.gridx = 1;
             frame.add(txtFieldEndDate, constraints);
             if (currentNote.description != null) {
                 txtFieldEndDate.setText(currentNote.getPlannedDedline().toString());
             }
 
         // Create and set up label and combo box for "Osoba odpowiedzialna"
-        //prepareUserComboBox();
-        frame.add(cbResponsiblePerson, constraints);
+        prepareUserComboBox();
+//        frame.add(cbResponsiblePerson, constraints);
 
 
         // Create and set up the "Save" button
@@ -138,24 +146,49 @@ public class AddNote extends AppWindow implements ActionListener {
 
     private void prepareUserComboBox() {
 
-//        if(selectedTeam != null){
-            List<User> TeamUser = selectedTeam.getUsers();
-            String[] responsiblePersonOptions = new String[TeamUser.size()];
-            for (int i = 0; i < TeamUser.size(); i++) {
-                responsiblePersonOptions[i] = ((User) TeamUser.get(i)).getEmail();
+//        String[] responsiblePersonOptions = {"Opcja 1","Opcja 2","Opcja 3"};
+//        constraints.gridx = 0;
+//        constraints.gridy = 3;
+//        setLabbel("Osoba odpowiedzialna",constraints);
+//        JComboBox<String> cbResponsiblePerson = new JComboBox<>(responsiblePersonOptions);
+//        if (currentNote.description != null) {
+//            cbResponsiblePerson.setSelectedItem(currentNote.getResponsibleUser());
+//        }
+//        constraints.gridx = 1;
+//        frame.add(cbResponsiblePerson, constraints);
+
+
+        List<User> users = new ArrayList<>();
+        for(Team team : MyTeams){
+            if(team.getUsers() != null){
+                users.addAll(team.getUsers());
             }
+        }
+        if(users.isEmpty()){
+            users.add(new User(session.getUserId()));
+        }
 
-            if(responsiblePersonOptions.length > 0 ){
-                constraints.gridx = 0;
-                constraints.gridy = 5;
-                setLabbel("Osoba odpowiedzialna",constraints);
+        
+        for (User user : users) {
+            System.out.println(user.getEmail());
+        }
 
-                if (currentNote.description != null) {
-                    cbResponsiblePerson.setSelectedItem(currentNote.getResponsibleUser());
-                }
-                constraints.gridx = 5;
+        String[] responsiblePersonOptions = new String[users.size()];
+        for (int i = 0; i < users.size(); i++) {
+            responsiblePersonOptions[i] = users.get(i).getEmail();
+        }
 
+            constraints.gridx = 0;
+            constraints.gridy = 5;
+            setLabbel("Osoba odpowiedzialna",constraints);
+            JComboBox<String> cbResponsiblePerson = new JComboBox<>(responsiblePersonOptions);
+
+
+            if (currentNote.description != null) {
+                cbResponsiblePerson.setSelectedItem(currentNote.getResponsibleUser());
             }
+            constraints.gridx = 1;
+            frame.add(cbResponsiblePerson, constraints);
 //        }
     }
 
