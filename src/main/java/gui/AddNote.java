@@ -1,5 +1,6 @@
 package gui;
 
+import db.team.TeamRepository;
 import notes.Note;
 import session.Session;
 import team.Team;
@@ -9,6 +10,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
 import java.text.DateFormat;
 import java.util.List;
 
@@ -17,6 +19,7 @@ public class AddNote extends AppWindow implements ActionListener {
     private JButton buttonAddNewNotte;
     private JComboBox<String> cbCategory;
     private JComboBox<String> cbTeam;
+    JComboBox<String> cbResponsiblePerson;
 //    private JTextArea txtAreaDescription;
     private JTextField txtAreaDescription;
 
@@ -68,7 +71,11 @@ public class AddNote extends AppWindow implements ActionListener {
         cbTeam.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e) {
                     String selectedTeamName = (String) cbTeam.getSelectedItem();
-                    selectedTeam = new Team(selectedTeamName);
+                try {
+                    selectedTeam = new TeamRepository().getTeamByName(selectedTeamName);
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
 
                 prepareUserComboBox();
             }
@@ -112,7 +119,8 @@ public class AddNote extends AppWindow implements ActionListener {
             }
 
         // Create and set up label and combo box for "Osoba odpowiedzialna"
-        prepareUserComboBox();
+        //prepareUserComboBox();
+        frame.add(cbResponsiblePerson, constraints);
 
 
         // Create and set up the "Save" button
@@ -129,9 +137,9 @@ public class AddNote extends AppWindow implements ActionListener {
     }
 
     private void prepareUserComboBox() {
-        System.out.println("ładuję comboboxa");
+
 //        if(selectedTeam != null){
-            List TeamUser = selectedTeam.getUsers();
+            List<User> TeamUser = selectedTeam.getUsers();
             String[] responsiblePersonOptions = new String[TeamUser.size()];
             for (int i = 0; i < TeamUser.size(); i++) {
                 responsiblePersonOptions[i] = ((User) TeamUser.get(i)).getEmail();
@@ -141,12 +149,12 @@ public class AddNote extends AppWindow implements ActionListener {
                 constraints.gridx = 0;
                 constraints.gridy = 5;
                 setLabbel("Osoba odpowiedzialna",constraints);
-                JComboBox<String> cbResponsiblePerson = new JComboBox<>(responsiblePersonOptions);
+
                 if (currentNote.description != null) {
                     cbResponsiblePerson.setSelectedItem(currentNote.getResponsibleUser());
                 }
                 constraints.gridx = 5;
-                frame.add(cbResponsiblePerson, constraints);
+
             }
 //        }
     }

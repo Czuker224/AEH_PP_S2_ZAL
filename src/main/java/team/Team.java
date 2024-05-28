@@ -3,6 +3,8 @@ package team;
 import db.notes.NoteRepository;
 import db.team.TeamRepository;
 import user.User;
+
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,11 +16,25 @@ public class Team {
 
     /* konstruktory */
     public Team(String name){
+
         this.name = name;
     }
 
-    public Team(Integer id){
-        this.Id = id;
+    public Team(Integer id) throws SQLException {
+        TeamRepository repo = new TeamRepository();
+        Team repoTeam = repo.getTeamById(id);
+
+        if (repoTeam != null) {
+            name = repoTeam.getName();
+            Id = repoTeam.getId();
+            users = repoTeam.getUsers();
+        }else{
+            this.Id = id;
+        }
+    }
+
+    public Team(){
+
     }
 
     public Team(Integer id,String name){

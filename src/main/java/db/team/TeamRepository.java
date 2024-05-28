@@ -85,6 +85,35 @@ public class TeamRepository {
         return team;
     }
 
+    public Team getTeamByName(String name) throws SQLException {
+
+        if (name == null) {
+            throw new IllegalArgumentException("id cannot be null");
+        }
+
+
+        Team team = null;
+        try (Connection connection = dbConnection.createDatabaseConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_TEAM_BYNAME_SQL)) {
+
+            preparedStatement.setString(1, name);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                Integer teamId = resultSet.getInt("id");
+                String teamName = resultSet.getString("name");
+
+                team  = new Team(teamId, teamName);
+            }
+        }
+
+        assert team != null;
+        team.setUsers(getUsersForTeam(team));
+
+
+        return team;
+    }
+
     public List<Team> getTeams(int userId) {
         List<Team> teams = new ArrayList<>();
         try (Connection connection = dbConnection.createDatabaseConnection();
