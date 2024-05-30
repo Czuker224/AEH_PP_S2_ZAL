@@ -128,6 +128,6 @@ public class Dashboard extends AppWindow implements ActionListener {
 
     private void myTeams () {
         this.frame.dispose();
-        new AddNote(session,this);
+        new MyTeam(session,this);
     }
 }

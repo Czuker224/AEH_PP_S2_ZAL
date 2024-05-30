@@ -1,4 +1,5 @@
 
+import gui.Dashboard;
 import session.Session;
 import user.User;
 
@@ -9,6 +10,9 @@ public class App {
         User currentUser = null;
         Session currentSession = null;
 
+        currentUser = new User(1);
+        currentSession = new Session(currentUser.getId());
+
         //logowanie
         if (currentUser == null){
 
@@ -16,6 +20,7 @@ public class App {
 
 
         }
+        new Dashboard(currentSession);
 
     }
 }
