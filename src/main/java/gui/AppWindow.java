@@ -30,7 +30,22 @@ public abstract class AppWindow implements ActionListener {
                 onClose();
             }
         });
-        frame.setLocationRelativeTo(null);
+//        frame.setLocationRelativeTo(null);
+
+        // Pobranie wymiarów ekranu
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+
+        // Pobranie wymiarów okna
+        Dimension frameSize = frame.getSize();
+
+        // Obliczenie współrzędnych dla wyśrodkowania okna
+        int x = (screenSize.width - frameSize.width) / 3;
+        int y = (screenSize.height - frameSize.height) / 7;
+
+        // Ustawienie pozycji okna
+        frame.setLocation(x, y);
+
+
         frame.setSize(1400, 900);
 
         layout = new GridBagLayout();
