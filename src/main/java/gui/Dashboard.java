@@ -5,6 +5,7 @@ import notes.Note;
 import notes.Notes;
 import session.Session;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
@@ -13,6 +14,7 @@ public class Dashboard extends AppWindow implements ActionListener {
 
     private JPanel panelNotes;
     private JButton buttonAddNewNotte;
+    private JButton buttonMyTeams;
 
     public Dashboard(Session session){
         super();
@@ -26,13 +28,28 @@ public class Dashboard extends AppWindow implements ActionListener {
         constraints = new GridBagConstraints();
         initializeFrame();
 
+
+//        frame.setLayout(new GridLayout(2, 12));
+
+        // Create and set up the "Moje zespoły" button
+        buttonMyTeams = new JButton("Moje zespoły");
+        buttonMyTeams.addActionListener(e -> myTeams());
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        constraints.gridwidth = 1;
+        frame.add(buttonMyTeams, constraints);
+
+
         // Adding the button to the frame
         buttonAddNewNotte = addNoteButton(frame);
 
 
         panelNotes = new JPanel();
+        panelNotes.setBorder(new EmptyBorder(10, 10, 10, 10)); // 20 pixels top margin
             constraints.gridx = 0;
             constraints.gridy = 2;
+//            constraints.gridwidth = 12;
+            constraints.weightx = 11;
             frame.add(panelNotes,constraints);
             renderNotes();
 
@@ -54,7 +71,7 @@ public class Dashboard extends AppWindow implements ActionListener {
             }
         });
 
-        constraints.gridx = 0;
+        constraints.gridx = 10;
         constraints.gridy = 0;
         constraints.gridwidth = 2;
         parent.add(btn,constraints);
@@ -107,5 +124,10 @@ public class Dashboard extends AppWindow implements ActionListener {
     private void editNote(Note note){
         this.frame.dispose();
         new AddNote(session,note,this);
+    }
+
+    private void myTeams () {
+        this.frame.dispose();
+        new AddNote(session,this);
     }
 }

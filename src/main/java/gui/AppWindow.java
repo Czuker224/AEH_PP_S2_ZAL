@@ -30,7 +30,7 @@ public abstract class AppWindow implements ActionListener {
                 onClose();
             }
         });
-//        frame.setLocationRelativeTo(null);
+        frame.setSize(1400, 900);
 
         // Pobranie wymiarów ekranu
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -39,14 +39,14 @@ public abstract class AppWindow implements ActionListener {
         Dimension frameSize = frame.getSize();
 
         // Obliczenie współrzędnych dla wyśrodkowania okna
-        int x = (screenSize.width - frameSize.width) / 3;
-        int y = (screenSize.height - frameSize.height) / 7;
+        int x = (screenSize.width - frameSize.width) / 2;
+        int y = (screenSize.height - frameSize.height) / 2;
 
         // Ustawienie pozycji okna
         frame.setLocation(x, y);
+//        frame.setLocationRelativeTo(null);
 
 
-        frame.setSize(1400, 900);
 
         layout = new GridBagLayout();
         constraints = new GridBagConstraints();
