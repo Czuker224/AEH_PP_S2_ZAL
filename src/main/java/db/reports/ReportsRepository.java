@@ -9,6 +9,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Logger;
 
+/**
+ * Klasa ReportsRepository dostarcza metod do pobierania różnych raportów z bazy danych.
+ */
 public class ReportsRepository {
 
     private static final Logger logger = Logger.getLogger(SessionRepository.class.getName());
