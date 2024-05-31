@@ -1,5 +1,6 @@
 package gui;
 
+import db.reports.ReportsRepository;
 import db.team.TeamRepository;
 import db.user.UserRepository;
 import notes.Note;
@@ -67,6 +68,17 @@ public class AddNote extends AppWindow implements ActionListener {
 
         initializeFrame();
 
+        if(currentNote.getId() != null){
+            ReportsRepository rr = new ReportsRepository();
+            Long time = rr.noteCountWorkTime(currentNote.getId(), currentUser.getId());
+
+            if (time != null) {
+                constraints.gridx = 0;
+                constraints.gridy++;
+                setLabbel("Obecny czas obsługi: " + timeToString(time),constraints);
+            }
+        }
+
         // Create and set up label and combo box for "Zespół"
         MyTeams = Team.getMyTeams(new User(session.getUserId()));
 
@@ -76,7 +88,7 @@ public class AddNote extends AppWindow implements ActionListener {
             teamOptions[i] = ((Team) MyTeams.get(i)).getName();
         }
         constraints.gridx = 0;
-        constraints.gridy = 0;
+        constraints.gridy++;
         setLabbel("Zespół", constraints);
         cbTeam = new JComboBox<>(teamOptions);
         cbTeam.setPreferredSize(new Dimension(200, 50));
@@ -102,7 +114,7 @@ public class AddNote extends AppWindow implements ActionListener {
         // Create and set up label and combo box for "Kategoria"
         String[] categoryOptions = currentNote.TYPE_LIST;
         constraints.gridx = 0;
-        constraints.gridy = 1;
+        constraints.gridy++;
         setLabbel("Kategoria",constraints);
             cbCategory = new JComboBox<>(categoryOptions);
             if (currentNote.type != null) {
@@ -113,7 +125,7 @@ public class AddNote extends AppWindow implements ActionListener {
 
         // Create and set up label and text field for "Opis"
         constraints.gridx = 0;
-        constraints.gridy = 2;
+        constraints.gridy++;
         setLabbel("Opis",constraints);
 //        txtAreaDescription = new JTextArea(5, 20);
         txtAreaDescription = new JTextField(300);
@@ -126,7 +138,7 @@ public class AddNote extends AppWindow implements ActionListener {
 
         // Create and set up label and date chooser for "Planowana data zakończenia"
         constraints.gridx = 0;
-        constraints.gridy = 4;
+        constraints.gridy++;
         setLabbel("Planowana data wykonania",constraints);
             txtFieldEndDate = new JFormattedTextField(DateFormat.getDateInstance());
             constraints.gridx = 1;
@@ -142,7 +154,7 @@ public class AddNote extends AppWindow implements ActionListener {
         // Create and set up label and combo box for "Status"
         String[] statusOptions = {"do zrobienia","w trakcie","zakończone"};
         constraints.gridx = 0;
-        constraints.gridy = 6;
+        constraints.gridy++;
         setLabbel("Status",constraints);
         cbStaus = new JComboBox<>(statusOptions);
         if (currentNote.type != null) {
@@ -162,7 +174,7 @@ public class AddNote extends AppWindow implements ActionListener {
                 }
             });
             constraints.gridx = 0;
-            constraints.gridy = 7;
+            constraints.gridy++;
             constraints.gridwidth = 1;
             frame.add(buttonAddNewNotte, constraints);
 
@@ -194,7 +206,7 @@ public class AddNote extends AppWindow implements ActionListener {
         }
 
             constraints.gridx = 0;
-            constraints.gridy = 5;
+            constraints.gridy++;
             setLabbel("Osoba odpowiedzialna",constraints);
             cbResponsiblePerson = new JComboBox<>(responsiblePersonOptions);
 
@@ -250,5 +262,30 @@ public class AddNote extends AppWindow implements ActionListener {
         new Dashboard(session);
 //        this.lastWindow.frame.setVisible(true);
 
+    }
+
+    private String timeToString(Long totalSeconds ){
+        long seconds = totalSeconds / 1000;
+        long minutes = seconds / 60;
+        long hours = minutes / 60;
+        long days = hours / 24;
+
+        // Obliczamy pozostałe godziny po odjęciu pełnych dni
+        hours %= 24;
+
+        // Obliczamy pozostałe minuty po odjęciu pełnych godzin
+        minutes %= 60;
+
+        // Obliczamy pozostałe sekundy po odjęciu pełnych minut
+        seconds %= 60;
+
+        String formattedTime;
+        if (days == 0) {
+            formattedTime = String.format("%02d:%02d:%02d", hours, minutes, seconds);
+        } else {
+            formattedTime = String.format("%d , %02d:%02d:%02d", days, hours, minutes, seconds);
+        }
+
+        return formattedTime;
     }
 }

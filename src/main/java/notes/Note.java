@@ -6,7 +6,6 @@ import java.util.List;
 import db.notes.NoteRepository;
 
 public class Note {
-
     public Integer id;
     public Integer team;
     public Integer responsibleUser;
@@ -24,7 +23,7 @@ public class Note {
 
     public Note(){
         this.creationDate = new Date();
-        this.state = "New";
+        this.state = "do zrobienia";
     }
 
     public Note(Integer responsibleUser, String state, String type, String description, Date plannedDeadline) {
