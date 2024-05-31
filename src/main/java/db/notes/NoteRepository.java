@@ -12,6 +12,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.logging.Logger;
 
+/**
+ * Klasa obsługująca operacje na bazie danych związane z Notatkami
+ */
 public class NoteRepository {
 
     private static final Logger logger = Logger.getLogger(SessionRepository.class.getName());
@@ -29,6 +32,18 @@ public class NoteRepository {
     private static final String INSERT_NOTE_HISTORY_SQL = "INSERT INTO NOTES_HISTORY (noteId, userId, dateStart) VALUES (?, ?, ?)";
     private static final String UPDATE_NOTE_HISTORY_SQL = "UPDATE NOTES_HISTORY SET dateEnd = ? WHERE Id = ?";
 
+    /**
+     * Dodaje notatkę do bazy danych z podanymi informacjami.
+     *
+     * @param inputDate         Data dodania notatki.
+     * @param responsibleUser   Identyfikator użytkownika odpowiedzialnego za notatkę.
+     * @param state             Stan notatki.
+     * @param type              Typ notatki.
+     * @param description       Opis notatki.
+     * @param planedDeadline    Planowany termin wykonania notatki.
+     * @param team              Identyfikator zespołu powiązanego z notatką.
+     * @return Wygenerowany klucz dodanej notatki w bazie danych.
+     */
     public int addNote(Date inputDate, Integer responsibleUser, String state, String type, String description, Date planedDeadline, Integer team) {
         ResultSet generatedKeys = null;
         int generatedKey = 0;
@@ -64,6 +79,13 @@ public class NoteRepository {
         return generatedKey;
     }
 
+    /**
+     * Pobiera obiekt notatki z bazy danych na podstawie podanego identyfikatora.
+     *
+     * @param id Identyfikator notatki do pobrania. Nie może być wartością null.
+     * @return Obiekt notatki odpowiadający podanemu identyfikatorowi, lub null, jeśli taka notatka nie istnieje.
+     * @throws IllegalArgumentException jeśli parametr id ma wartość null.
+     */
     public Note getNote(Integer id) {
         if (id == null) {
             throw new IllegalArgumentException("id cannot be null");
@@ -93,6 +115,13 @@ public class NoteRepository {
         return note;
     }
 
+    /**
+     * Pobiera notatki powiązane z użytkownikiem.
+     *
+     * @param userId Identyfikator użytkownika, dla którego mają być pobrane notatki. Nie może być wartością null.
+     * @return Lista obiektów notatek powiązanych z użytkownikiem.
+     * @throws IllegalArgumentException Jeśli userId ma wartość null.
+     */
     public List<notes.Note> getUserNotes(Integer userId) {
         if (userId == null) {
             throw new IllegalArgumentException("userId cannot be null");
@@ -124,6 +153,18 @@ public class NoteRepository {
         return notes;
     }
 
+    /**
+     * Aktualizuje notatkę przy użyciu podanych parametrów.
+     *
+     * @param id Identyfikator notatki do zaktualizowania.
+     * @param inputDate Data wprowadzenia dla notatki.
+     * @param responsibleUser Użytkownik odpowiedzialny za notatkę.
+     * @param state Stan notatki.
+     * @param type Typ notatki.
+     * @param description Opis notatki.
+     * @param planedDeadline Planowany termin wykonania notatki.
+     * @param team Zespół powiązany z notatką.
+     */
     public void updateNote(Integer id, java.util.Date inputDate, Integer responsibleUser, String state, String type, String description, java.util.Date planedDeadline, Integer team) {
         Note currNote = new Note(id);
 
@@ -163,6 +204,11 @@ public class NoteRepository {
         }
     }
 
+    /**
+     * Usuwa notatkę z bazy danych.
+     *
+     * @param id Identyfikator notatki do usunięcia.
+     */
     public void deleteNote(Integer id) {
         try (Connection connection = dbConnection.createDatabaseConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_NOTE_SQL)) {
@@ -174,6 +220,12 @@ public class NoteRepository {
         }
     }
 
+    /**
+     * Dodaje wpis historii notatki dla podanego ID notatki i ID użytkownika.
+     *
+     * @param noteId Identyfikator notatki.
+     * @param userId Identyfikator użytkownika.
+     */
     private void addNoteHistory(Integer noteId, Integer userId){
         try (Connection connection = dbConnection.createDatabaseConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(INSERT_NOTE_HISTORY_SQL)) {
@@ -189,6 +241,12 @@ public class NoteRepository {
         }
     }
 
+    /**
+     * Zwraca identyfikator historii notatki dla danego identyfikatora notatki.
+     *
+     * @param noteId Identyfikator notatki.
+     * @return Identyfikator historii notatki, lub null, jeśli nie znaleziono.
+     */
     private Integer getNoteHistoryId(Integer noteId){
         try (Connection connection = dbConnection.createDatabaseConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(SELECT_NOTE_HISTORY_FOR_NOTEID_SQL)) {
@@ -205,6 +263,11 @@ public class NoteRepository {
         return null;
     }
 
+    /**
+     * Aktualizuje historię notatki w bazie danych.
+     *
+     * @param histId Identyfikator wpisu historii do zaktualizowania.
+     */
     private void updateNoteHistory(Integer histId){
         try (Connection connection = dbConnection.createDatabaseConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_NOTE_HISTORY_SQL)) {

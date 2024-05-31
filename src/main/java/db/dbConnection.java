@@ -9,6 +9,11 @@ public class dbConnection {
     private static final String DATABASE_URL = "src/main/resources/db/database";
     private static final Logger logger = Logger.getLogger(dbConnection.class.getName());
 
+    /**
+     * Tworzy połączenie z bazą danych za pomocą JDBC.
+     *
+     * @return Połączenie z bazą danych.
+     */
     public static Connection createDatabaseConnection() {
         Connection connection = null;
         try {
