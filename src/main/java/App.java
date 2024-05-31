@@ -10,9 +10,6 @@ public class App {
         User currentUser = null;
         Session currentSession = null;
 
-        currentUser = new User(1);
-        currentSession = new Session(currentUser.getId());
-
         //logowanie
         if (currentUser == null){
 
