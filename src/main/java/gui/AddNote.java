@@ -24,6 +24,7 @@ import java.util.List;
 public class AddNote extends AppWindow implements ActionListener {
 
     private JButton buttonAddNewNotte;
+    private JComboBox<String> cbStaus;
     private JComboBox<String> cbCategory;
     private JComboBox<String> cbTeam;
     private JComboBox<String> cbResponsiblePerson;
@@ -130,13 +131,25 @@ public class AddNote extends AppWindow implements ActionListener {
             txtFieldEndDate = new JFormattedTextField(DateFormat.getDateInstance());
             constraints.gridx = 1;
             frame.add(txtFieldEndDate, constraints);
-            if (currentNote.description != null) {
+            if (currentNote.getPlannedDedline() != null) {
                 txtFieldEndDate.setText(currentNote.getPlannedDedline().toString());
             }
 
         // Create and set up label and combo box for "Osoba odpowiedzialna"
         prepareUserComboBox();
 //        frame.add(cbResponsiblePerson, constraints);
+
+        // Create and set up label and combo box for "Status"
+        String[] statusOptions = {"do zrobienia","w trakcie","zakończone"};
+        constraints.gridx = 0;
+        constraints.gridy = 6;
+        setLabbel("Status",constraints);
+        cbStaus = new JComboBox<>(statusOptions);
+        if (currentNote.type != null) {
+            cbStaus.setSelectedItem(currentNote.getState());
+        }
+        constraints.gridx = 1;
+        frame.add(cbStaus, constraints);
 
 
         // Create and set up the "Save" button
@@ -149,7 +162,7 @@ public class AddNote extends AppWindow implements ActionListener {
                 }
             });
             constraints.gridx = 0;
-            constraints.gridy = 6;
+            constraints.gridy = 7;
             constraints.gridwidth = 1;
             frame.add(buttonAddNewNotte, constraints);
 
@@ -203,7 +216,7 @@ public class AddNote extends AppWindow implements ActionListener {
     private void addNewNote() throws SQLException {
 
         this.currentNote.setDescription(txtAreaDescription.getText());
-        this.currentNote.setState("New");
+        this.currentNote.setState(cbStaus.getSelectedItem().toString());
 
         if(cbCategory.getSelectedItem() != null){
             this.currentNote.setType(cbCategory.getSelectedItem().toString());

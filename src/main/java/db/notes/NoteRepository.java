@@ -27,7 +27,7 @@ public class NoteRepository {
     private static final String SELECT_NOTE_HISTORY_FOR_NOTEID_SQL = "SELECT * FROM NOTES_HISTORY WHERE noteId = ?";
     private static final String SELECT_NOTE_HISTORY_FOR_NOTEID_ONLYOPEN_SQL = "SELECT * FROM NOTES_HISTORY WHERE dateEnd is null and noteId = ? and userId = ?";
     private static final String INSERT_NOTE_HISTORY_SQL = "INSERT INTO NOTES_HISTORY (noteId, userId, dateStart) VALUES (?, ?, ?)";
-    private static final String UPDATE_NOTE_HISTORY_SQL = "UPDATE NOTES_HISTORY SET dateEnd = ? WHERE noteId = ?";
+    private static final String UPDATE_NOTE_HISTORY_SQL = "UPDATE NOTES_HISTORY SET dateEnd = ? WHERE Id = ?";
 
     public int addNote(Date inputDate, Integer responsibleUser, String state, String type, String description, Date planedDeadline, Integer team) {
         ResultSet generatedKeys = null;
@@ -75,7 +75,6 @@ public class NoteRepository {
 
             preparedStatement.setInt(1, id);
 
-            System.out.println("Executing SQL Query: " + SELECT_NOTE_SQL.replace("?", String.valueOf(id)));
             ResultSet resultSet = preparedStatement.executeQuery();
 
             if (resultSet.next()) {
@@ -148,10 +147,15 @@ public class NoteRepository {
             preparedStatement.setInt(7, id);
             preparedStatement.executeUpdate();
 
-            if(Objects.equals(state, "Zakończony") || !Objects.equals(currNote.getResponsibleUser(), responsibleUser)){
+            if(Objects.equals(state, "zakończone")){
+                Integer noteHistoryId = getNoteHistoryId(id);
+                
+                updateNoteHistory(noteHistoryId);
+            } else if (!Objects.equals(currNote.getResponsibleUser(), responsibleUser)) {
                 Integer noteHistoryId = getNoteHistoryId(id);
 
                 updateNoteHistory(noteHistoryId);
+                addNoteHistory(noteHistoryId,responsibleUser);
             }
 
         } catch (SQLException e) {
@@ -201,11 +205,11 @@ public class NoteRepository {
         return null;
     }
 
-    private void updateNoteHistory(Integer noteId){
+    private void updateNoteHistory(Integer histId){
         try (Connection connection = dbConnection.createDatabaseConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_NOTE_HISTORY_SQL)) {
 
-            preparedStatement.setInt(2, noteId);
+            preparedStatement.setInt(2, histId);
             preparedStatement.setDate(1, new Date(System.currentTimeMillis()));
             preparedStatement.executeUpdate();
 

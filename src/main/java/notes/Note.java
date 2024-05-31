@@ -94,7 +94,6 @@ public class Note {
     }
 
     public Integer getResponsibleUser() {
-        System.out.println(responsibleUser);
         return responsibleUser;
     }
 
