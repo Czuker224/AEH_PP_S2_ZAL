@@ -19,6 +19,7 @@ public class ReportsRepository {
             "GROUP BY NH.noteId, NH.userId";
 
     private static final String SELECT_USER_COUNT_ALLOPENNOTES_SQL = "SELECT COUNT(id) [COUNT] FROM NOTES WHERE state NOT IN ('zakończone') AND responsibleUser = ?";
+    private static final String SELECT_TEAM_COUNT_ALLOPENNOTES_SQL = "SELECT COUNT(id) [COUNT] FROM NOTES WHERE state NOT IN ('zakończone') AND team = ?";
 
 
 
@@ -46,9 +47,27 @@ public class ReportsRepository {
         return null;
     }
 
-    public Integer teamCountAllOpenNotes(Integer TeamId){
+    /**
+     * Zlicza liczbę otwartych notatek dla danego zespołu.
+     *
+     * @param teamId Identyfikator zespołu.
+     * @return Liczba otwartych notatek dla zespołu. Jeśli wystąpi błąd lub nie znaleziono danych, zwracana jest wartość null.
+     */
+    public Integer teamCountAllOpenNotes(Integer teamId){
+        try (Connection connection = dbConnection.createDatabaseConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_TEAM_COUNT_ALLOPENNOTES_SQL)) {
 
-        return 1;
+            preparedStatement.setInt(1, teamId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.first()) {
+                return resultSet.getInt("COUNT");
+            }
+        } catch (SQLException e) {
+            logger.severe("Database operation failed: " + e);
+        }
+
+        return null;
     }
 
     /**
