@@ -94,6 +94,7 @@ public class Note {
     }
 
     public Integer getResponsibleUser() {
+        System.out.println(responsibleUser);
         return responsibleUser;
     }
 
@@ -150,8 +151,15 @@ public class Note {
         NoteRepository req = new NoteRepository();
 
         if(this.id == null){
-            java.sql.Date sqlCreationDate = new java.sql.Date(getCreationDate().getTime());
-            java.sql.Date sqlPlannedDedline = new java.sql.Date(getPlannedDedline().getTime());
+            java.sql.Date sqlCreationDate = null;
+            java.sql.Date sqlPlannedDedline = null;
+
+            if(getCreationDate() != null){
+                sqlCreationDate = new java.sql.Date(getCreationDate().getTime());
+            }
+            if(getPlannedDedline() != null){
+                sqlPlannedDedline = new java.sql.Date(getPlannedDedline().getTime());
+            }
 
             Integer id = req.addNote(sqlCreationDate, getResponsibleUser(), getState(), getType(), getDescription(), sqlPlannedDedline,getTeam());
             setId(id);

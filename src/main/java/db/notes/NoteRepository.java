@@ -136,11 +136,15 @@ public class NoteRepository {
             preparedStatement.setString(2, state);
             preparedStatement.setString(3, type);
             preparedStatement.setString(4, description);
-            if (planedDeadline instanceof java.sql.Date) {
-                preparedStatement.setDate(5, (java.sql.Date) planedDeadline);
-            } else {
-                preparedStatement.setDate(5, new java.sql.Date(planedDeadline.getTime()));
+            java.sql.Date pDate = null;
+            if (planedDeadline != null) {
+                if (planedDeadline instanceof java.sql.Date) {
+                    pDate = (java.sql.Date) planedDeadline;
+                } else {
+                    pDate = new java.sql.Date(planedDeadline.getTime());
+                }
             }
+            preparedStatement.setDate(5, pDate);
             preparedStatement.setInt(7, id);
             preparedStatement.executeUpdate();
 

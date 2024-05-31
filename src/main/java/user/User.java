@@ -26,6 +26,20 @@ public class User {
         }
     }
 
+    public User(String email) {
+        UserRepository ur = new UserRepository();
+        User sUser = (User) ur.getUser(Id).getFirst();
+        if (sUser != null) {
+            this.imie = sUser.getImie();
+            this.nazwisko = sUser.getNazwisko();
+            this.email = sUser.getEmail();
+            this.haslo = sUser.getHaslo();
+            this.Id = Id;
+        }else{
+            this.Id = Id;
+        }
+    }
+
     public User (String imie, String nazwisko, String email, String haslo) {
         this.imie = imie;
         this.nazwisko = nazwisko;

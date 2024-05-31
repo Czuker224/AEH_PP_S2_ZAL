@@ -1,6 +1,7 @@
 package gui;
 
 import db.team.TeamRepository;
+import db.user.UserRepository;
 import notes.Note;
 import session.Session;
 import team.Team;
@@ -12,7 +13,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
 import java.text.DateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class AddNote extends AppWindow implements ActionListener {
@@ -20,9 +26,10 @@ public class AddNote extends AppWindow implements ActionListener {
     private JButton buttonAddNewNotte;
     private JComboBox<String> cbCategory;
     private JComboBox<String> cbTeam;
-    JComboBox<String> cbResponsiblePerson;
+    private JComboBox<String> cbResponsiblePerson;
 //    private JTextArea txtAreaDescription;
     private JTextField txtAreaDescription;
+    private JTextField txtFieldEndDate;
 
     private User currentUser;
     private Note currentNote;
@@ -37,6 +44,7 @@ public class AddNote extends AppWindow implements ActionListener {
         super();
 
         this.currentNote = new Note();
+        this.lastWindow = lastWindow;
 
         setSession(session);
         prepareWindow();
@@ -119,7 +127,7 @@ public class AddNote extends AppWindow implements ActionListener {
         constraints.gridx = 0;
         constraints.gridy = 4;
         setLabbel("Planowana data wykonania",constraints);
-            JTextField txtFieldEndDate = new JFormattedTextField(DateFormat.getDateInstance());
+            txtFieldEndDate = new JFormattedTextField(DateFormat.getDateInstance());
             constraints.gridx = 1;
             frame.add(txtFieldEndDate, constraints);
             if (currentNote.description != null) {
@@ -133,7 +141,13 @@ public class AddNote extends AppWindow implements ActionListener {
 
         // Create and set up the "Save" button
         buttonAddNewNotte = new JButton("Zapisz");
-            buttonAddNewNotte.addActionListener(e -> addNewNote());
+            buttonAddNewNotte.addActionListener(e -> {
+                try {
+                    addNewNote();
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
+            });
             constraints.gridx = 0;
             constraints.gridy = 6;
             constraints.gridwidth = 1;
@@ -145,18 +159,6 @@ public class AddNote extends AppWindow implements ActionListener {
     }
 
     private void prepareUserComboBox() {
-
-//        String[] responsiblePersonOptions = {"Opcja 1","Opcja 2","Opcja 3"};
-//        constraints.gridx = 0;
-//        constraints.gridy = 3;
-//        setLabbel("Osoba odpowiedzialna",constraints);
-//        JComboBox<String> cbResponsiblePerson = new JComboBox<>(responsiblePersonOptions);
-//        if (currentNote.description != null) {
-//            cbResponsiblePerson.setSelectedItem(currentNote.getResponsibleUser());
-//        }
-//        constraints.gridx = 1;
-//        frame.add(cbResponsiblePerson, constraints);
-
 
         List<User> users = new ArrayList<>();
         for(Team team : MyTeams){
@@ -181,7 +183,7 @@ public class AddNote extends AppWindow implements ActionListener {
             constraints.gridx = 0;
             constraints.gridy = 5;
             setLabbel("Osoba odpowiedzialna",constraints);
-            JComboBox<String> cbResponsiblePerson = new JComboBox<>(responsiblePersonOptions);
+            cbResponsiblePerson = new JComboBox<>(responsiblePersonOptions);
 
 
             if (currentNote.description != null) {
@@ -198,13 +200,42 @@ public class AddNote extends AppWindow implements ActionListener {
     }
 
 
-    private void addNewNote() {
+    private void addNewNote() throws SQLException {
+
         this.currentNote.setDescription(txtAreaDescription.getText());
-        this.currentNote.setType(cbCategory.getSelectedItem().toString());
+        this.currentNote.setState("New");
+
+        if(cbCategory.getSelectedItem() != null){
+            this.currentNote.setType(cbCategory.getSelectedItem().toString());
+        }
+
+        if(cbResponsiblePerson.getSelectedItem() != null){
+            UserRepository ur = new UserRepository();
+            User xUser = ur.getUserByEmail(cbResponsiblePerson.getSelectedItem().toString());
+            this.currentNote.setResponsibleUser(xUser.getId());
+        }
+
+        if(cbTeam.getSelectedItem() != null){
+            TeamRepository tr = new TeamRepository();
+            Team team = tr.getTeamByName(cbTeam.getSelectedItem().toString());
+            this.currentNote.setTeam(team.getId());
+        }
+
+        if(txtFieldEndDate != null && !txtFieldEndDate.getText().isEmpty()){
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            try {
+                LocalDate date = LocalDate.parse(txtFieldEndDate.getText(), formatter);
+                this.currentNote.setPlannedDedline(Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+            } catch (DateTimeParseException e) {
+                JOptionPane.showMessageDialog(frame, "Please make sure the date is in the format yyyy-MM-dd", "Invalid Date", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        }
 
         this.currentNote.save();
         this.frame.dispose();
-        this.lastWindow.frame.setVisible(true);
+        new Dashboard(session);
+//        this.lastWindow.frame.setVisible(true);
 
     }
 }
