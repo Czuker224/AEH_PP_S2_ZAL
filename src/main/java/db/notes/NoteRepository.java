@@ -149,7 +149,7 @@ public class NoteRepository {
 
             if(Objects.equals(state, "zakończone")){
                 Integer noteHistoryId = getNoteHistoryId(id);
-                
+
                 updateNoteHistory(noteHistoryId);
             } else if (!Objects.equals(currNote.getResponsibleUser(), responsibleUser)) {
                 Integer noteHistoryId = getNoteHistoryId(id);

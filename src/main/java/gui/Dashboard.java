@@ -104,6 +104,18 @@ public class Dashboard extends AppWindow implements ActionListener {
                         editNote(note);
                     }
                 });
+                switch (note.getState()) {
+                    default:
+                        label.setBackground(Color.WHITE);
+                        break;
+                    case "zakończone":
+                        label.setBackground(Color.GRAY);
+                        label.setFont(label.getFont().deriveFont(Font.ITALIC));
+                        break;
+                    case "w trakcie":
+                        label.setBackground(Color.ORANGE);
+                        break;
+                }
                 panel.add(label);
             }
         }else{
